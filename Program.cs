@@ -1,30 +1,34 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 using TalkStream_API.Database;
 using TalkStream_API.Entities;
 using TalkStream_API.Extensions;
-using TalkStream_API.Repositories.AccountRepository;
+using TalkStream_API.Middleware;
+using TalkStream_API.Repositories.UserRepository;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 
+//Exception Handler
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
+//Global Configuration
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//Identity & Authentication
+//Identity Authentication
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(IdentityConstants.ApplicationScheme)
-    .AddCookie(IdentityConstants.ApplicationScheme)
-    .AddBearerToken(IdentityConstants.BearerScheme);
+                .AddCookie(IdentityConstants.ApplicationScheme)
+                .AddBearerToken(IdentityConstants.BearerScheme);
 builder.Services.AddIdentityCore<User>()
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddApiEndpoints();
+                .AddEntityFrameworkStores<AppDbContext>()
+                .AddApiEndpoints();
 
 //Database connection
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -42,27 +46,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
     app.ApplyMigrations();
-    app.UseDeveloperExceptionPage();
 }
-else
-{
-    app.UseExceptionHandler("/error");
-    app.UseHsts();
-}
+
+app.UseExceptionHandler();
 
 app.UseAuthentication();
 app.UseAuthorization();
-
-
-app.MapGet("users/me", async(ClaimsPrincipal claims, AppDbContext dbContext) =>
-{
-    var userId = claims.Claims.First(c => c.Type == ClaimTypes.NameIdentifier).Value;
-    return await dbContext.Users.FindAsync(userId);
-}).RequireAuthorization();
+app.MapIdentityApi<User>();
 
 app.UseHttpsRedirection();
-
-app.MapIdentityApi<User>();
 
 app.MapControllers();
 
