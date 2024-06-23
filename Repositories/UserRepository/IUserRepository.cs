@@ -4,6 +4,12 @@ namespace TalkStream_API.Repositories.UserRepository;
 
 public interface IUserRepository
 {
-    public User? GetUser(string uid);
+    public User RegisterUser(User user);
+    public User GetUserById(string uid);
     
+    public User GetUserByUsername(string username);
+
+    public User GetUserByEmail(string email);
+
+    public User GetUserByUsernameOrEmail(string usernameOrEmail);
 }
