@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using TalkStream_API.Database;
-using TalkStream_API.Entities;
 using TalkStream_API.Hub;
 using TalkStream_API.Middleware;
 using TalkStream_API.Repositories.UserRepository;
@@ -16,14 +15,27 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddSingleton<IDictionary<string, UserRoomConnection>>(opt => 
-    new Dictionary<string, UserRoomConnection>());
 
 //Exception Handler
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 //Global Configuration
+builder.Services.AddCors(opt =>
+{
+    opt.AddPolicy("RNapp", builder =>
+    {
+        builder
+            .WithOrigins(
+                "http://localhost:8081", 
+                "http://http://192.168.107.242:8081",
+                "https://http://192.168.107.242:8081", 
+                "exp://192.168.43.190:8081")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
 builder.Services.AddSignalR();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -93,14 +105,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseExceptionHandler();
-
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-
-app.MapHub<ChatHub>("/chat");
-
-app.UseHttpsRedirection();
-
 app.MapControllers();
-
+app.MapHub<MessagingHub>("/hub");
+app.UseCors("RNapp");
 app.Run(); 
