@@ -20,7 +20,7 @@ public class AccountController : ControllerBase
         _jwtService = service;
     }
     [HttpPost("register")]
-    public IActionResult Register(UserDto dto)
+    public IActionResult Register(RegisterUserDto dto)
     {
         var user = new User
         {
@@ -30,24 +30,41 @@ public class AccountController : ControllerBase
             Role = Role.User,
             Password = BCrypt.Net.BCrypt.HashPassword(dto.Password)
         };
-        _userRepository.RegisterUser(user);
-        return Ok("User registered");
+        var registered = _userRepository.RegisterUser(user);
+        
+        var jwt = _jwtService.Generator(registered.Uid, registered.Role.ToString()); 
+        Response.Cookies.Append("jwt", jwt, new CookieOptions { 
+            HttpOnly = true
+        });
+
+        var login = new LoginResponseDto(registered.Uid,registered.Userame, registered.Email, jwt);
+        if (!string.IsNullOrEmpty(login.Jwt))
+        {
+            return Ok(login);
+        }
+
+        return BadRequest("Veuillez verifier les informations saisie");
     }
     
     [HttpPost("login")]
     public IActionResult Login(LoginDto dto)
     {
-            var usr = _userRepository.GetUserByUsernameOrEmail(dto.UsernameOrEmail);
-            
-            if (!BCrypt.Net.BCrypt.Verify(dto.Password, usr.Password))
-            {
-                return BadRequest("Wrong username or password");
-            }
-            var jwt = _jwtService.Generator(usr.Uid, usr.Role.ToString());
-            Response.Cookies.Append("jwt", jwt, new CookieOptions {
-                HttpOnly = true
-            });
-            return Ok(jwt);
+        var usr = _userRepository.GetUserByUsernameOrEmail(dto.UsernameOrEmail);
+        if (!BCrypt.Net.BCrypt.Verify(dto.Password, usr.Password)) 
+        { 
+            return BadRequest("Identifiant ou Mot de passe erroné");
+        }
+        var jwt = _jwtService.Generator(usr.Uid, usr.Role.ToString()); 
+        Response.Cookies.Append("jwt", jwt, new CookieOptions { 
+            HttpOnly = true
+        });
+
+        var user = new LoginResponseDto(usr.Uid,usr.Userame, usr.Email, jwt);
+        if (!string.IsNullOrEmpty(user.Jwt))
+        {
+            return Ok(user);
+        }
+        return BadRequest("Veuillez verifier les informations saisie");
     }
     
     [HttpGet("me")]

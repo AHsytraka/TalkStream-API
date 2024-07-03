@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.SignalR;
+using TalkStream_API.Entities;
 
 namespace TalkStream_API.Hub;
 
 public class MessagingHub : Microsoft.AspNetCore.SignalR.Hub
 {
-    private static readonly List<UserMessage> MessageHistory = new List<UserMessage>();
+    private static readonly List<UserMessage> MessageHistory = [];
     public async Task PostMessage(string content)
     {
         var senderId = Context.ConnectionId;
@@ -21,9 +22,4 @@ public class MessagingHub : Microsoft.AspNetCore.SignalR.Hub
         await Clients.Caller.SendAsync("messagehistory", MessageHistory);
 }
 
-public class UserMessage
-{
-    public required string Sender { get; set; }
-    public required string Content { get; set; }
-    public DateTime SentTime { get; set; }
-}
+
