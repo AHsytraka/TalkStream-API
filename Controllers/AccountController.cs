@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TalkStream_API.DTO;
 using TalkStream_API.Entities;
@@ -25,7 +24,7 @@ public class AccountController : ControllerBase
         var user = new User
         {
             Uid = Guid.NewGuid().ToString(),
-            Userame = dto.Username,
+            Username = dto.Username,
             Email = dto.Email,
             Role = Role.User,
             Password = BCrypt.Net.BCrypt.HashPassword(dto.Password)
@@ -37,7 +36,7 @@ public class AccountController : ControllerBase
             HttpOnly = true
         });
 
-        var login = new LoginResponseDto(registered.Uid,registered.Userame, registered.Email, jwt);
+        var login = new LoginResponseDto(registered.Uid,registered.Username, registered.Email, jwt);
         if (!string.IsNullOrEmpty(login.Jwt))
         {
             return Ok(login);
@@ -59,7 +58,7 @@ public class AccountController : ControllerBase
             HttpOnly = true
         });
 
-        var user = new LoginResponseDto(usr.Uid,usr.Userame, usr.Email, jwt);
+        var user = new LoginResponseDto(usr.Uid,usr.Username, usr.Email, jwt);
         if (!string.IsNullOrEmpty(user.Jwt))
         {
             return Ok(user);
@@ -67,14 +66,13 @@ public class AccountController : ControllerBase
         return BadRequest("Veuillez verifier les informations saisie");
     }
     
-    [HttpGet("me")]
-    [Authorize(Roles = "User")]
-    public IActionResult GetUser()
+    [HttpGet("{uid}")] 
+    public IActionResult GetUser(string uid)
     {
-        var jwt = Request.Cookies["jwt"];
+        // var jwt = Request.Cookies["jwt"];
         // Parse the issuer from the JWT as an integer
-        var token = _jwtService.Checker(jwt);
-        var uid = token.Issuer;
+        // var token = _jwtService.Checker(jwt);
+        // var uid = token.Issuer;
         var user = _userRepository.GetUserById(uid);
         
         return Ok(user);

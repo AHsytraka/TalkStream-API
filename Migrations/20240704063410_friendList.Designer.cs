@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TalkStream_API.Database;
 
@@ -10,9 +11,11 @@ using TalkStream_API.Database;
 namespace TalkStream_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240704063410_friendList")]
+    partial class friendList
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -43,7 +46,7 @@ namespace TalkStream_API.Migrations
                     b.Property<string>("UserUid")
                         .HasColumnType("varchar(36)");
 
-                    b.Property<string>("Username")
+                    b.Property<string>("Userame")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");

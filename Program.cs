@@ -27,10 +27,7 @@ builder.Services.AddCors(opt =>
     {
         builder
             .WithOrigins(
-                "http://localhost:8081", 
-                "http://http://192.168.107.242:8081",
-                "https://http://192.168.107.242:8081", 
-                "exp://192.168.43.190:8081")
+                "http://localhost:8081")
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();

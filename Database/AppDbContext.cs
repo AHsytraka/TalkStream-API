@@ -9,8 +9,5 @@ public class AppDbContext : DbContext
     {
         
     }
-    
     public DbSet<User> Users { get; set; }
-    public DbSet<Notification> Notifications { get; set; }
-    public DbSet<FriendRequest> FriendRequests { get; set; }
 }

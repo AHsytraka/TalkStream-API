@@ -24,7 +24,7 @@ public class UserRepository : IUserRepository
 
     public User GetUserById(string uid)
     {
-        return _context.Users.Find(uid);
+        return _context.Users.FirstOrDefault(u => u.Uid == uid);
     }
 
     public User GetUserByUsername(string username)
@@ -40,7 +40,12 @@ public class UserRepository : IUserRepository
     public User GetUserByUsernameOrEmail(string usernameOrEmail)
     {
         return _context.Users.FirstOrDefault(u => 
-            u.Userame == usernameOrEmail || 
+            u.Username == usernameOrEmail || 
             u.Email == usernameOrEmail) ?? throw new BadHttpRequestException("Wrong username or password");
+    }
+
+    public IEnumerable<User> GetUsersByUsername(string username)
+    {
+        return _context.Users.Where(u => u.Username.Contains(username));
     }
 }

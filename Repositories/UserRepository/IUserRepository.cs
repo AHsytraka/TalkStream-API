@@ -12,4 +12,6 @@ public interface IUserRepository
     public User GetUserByEmail(string email);
 
     public User GetUserByUsernameOrEmail(string usernameOrEmail);
+
+    public IEnumerable<User> GetUsersByUsername(string username);
 }

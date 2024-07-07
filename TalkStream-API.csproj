@@ -24,7 +24,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Repositories\FriendRequestRepository\" />
       <Folder Include="Repositories\MessageRepository\" />
+      <Folder Include="Repositories\NotificationRepository\" />
     </ItemGroup>
 
 </Project>
