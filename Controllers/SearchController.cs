@@ -20,4 +20,11 @@ public class SearchController : ControllerBase
         var users = _userRepository.GetUsersByUsername(username);
         return Ok(users);
     }
+
+    [HttpGet("ByUsername")]
+    public IActionResult GetUsersWithUsername(string username)
+    {
+        var users = _userRepository.GetUsersWithUsername(username);
+        return Ok(users);
+    }
 }

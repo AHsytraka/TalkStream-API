@@ -17,4 +17,6 @@ public class User
     public Role Role { get; set; }
     
     public virtual ICollection<User> Friends { get; set; } = new List<User>();
+    public virtual ICollection<FriendRequest> SentFriendRequests { get; set; } = new List<FriendRequest>();
+    public virtual ICollection<FriendRequest> ReceivedFriendRequests { get; set; } = new List<FriendRequest>();
 }

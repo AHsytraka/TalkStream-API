@@ -107,5 +107,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<MessagingHub>("/hub");
+app.MapHub<NotificationHub>("/notificationHub");
 app.UseCors("RNapp");
 app.Run(); 
