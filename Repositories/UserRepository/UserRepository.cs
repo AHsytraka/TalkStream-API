@@ -59,44 +59,91 @@ public class UserRepository : IUserRepository
         return _context.Users.Where(u => u.Username == username);
     }
 
-    public async Task AddFriendAsync(string userId, string friendId)
+    public async Task<bool> SendFriendRequestAsync(string requesterId, string addresseeId)
     {
-        var user = await _context.Users.Include(u => u.Friends).FirstOrDefaultAsync(u => u.Uid == userId);
-        var friend = await _context.Users.FindAsync(friendId);
+        // Check if a friend request already exists between these users
+        var existingRequest = await _context.FriendRequests
+            .AnyAsync(fr => (fr.RequesterId == requesterId && fr.AddresseeId == addresseeId) ||
+                            (fr.RequesterId == addresseeId && fr.AddresseeId == requesterId));
 
-        if (user != null && friend != null && !user.Friends.Contains(friend))
+        if (existingRequest)
         {
-            user.Friends.Add(friend);
-            await _context.SaveChangesAsync();
+            // Friend request already exists, do not create a new one
+            return false;
         }
-    }
 
-    public async Task SendFriendRequestAsync(string requesterId, string addresseeId)
-    {
         var friendRequest = new FriendRequest
         {
             RequesterId = requesterId,
-            AddresseeId = addresseeId
+            AddresseeId = addresseeId,
+            RequesterName = GetUserById(requesterId).Username,
+            AddresseeName = GetUserById(addresseeId).Username
         };
 
         _context.FriendRequests.Add(friendRequest);
         await _context.SaveChangesAsync();
+        return true;
     }
 
-    public async Task RespondToFriendRequestAsync(string requestId, bool isAccepted)
+    public async Task<string> RespondToFriendRequestAsync(string requestId, bool isAccepted)
     {
         var request = await _context.FriendRequests.FindAsync(requestId);
-        if (request != null)
-        {
-            request.IsAccepted = isAccepted;
-            if (isAccepted)
+            if ( request != null && isAccepted)
             {
                 // Add to each other's friend list if accepted
-                var user = await _context.Users.Include(u => u.Friends).FirstOrDefaultAsync(u => u.Uid == request.RequesterId);
-                var friend = await _context.Users.Include(u => u.Friends).FirstOrDefaultAsync(u => u.Uid == request.AddresseeId);
-                user?.Friends.Add(friend);
-                friend?.Friends.Add(user);
+                var user = _context.Users.Include(u => u.Friends).FirstOrDefault(u => u.Uid == request.RequesterId);
+                var userF = new Friend
+                {
+                    Uid = user.Uid,
+                    Username = user.Username,
+                    Email = user.Email,
+                };
+                var friend =  _context.Users.Include(u => u.Friends).FirstOrDefault(u => u.Uid == request.AddresseeId);
+                var friendF = new Friend
+                {
+                    Uid = friend.Uid,
+                    Username = friend.Username,
+                    Email = friend.Email,
+                };
+                
+                if (user != null && friend != null)
+                {
+                    user.Friends.Add(friendF);
+                    friend.Friends.Add(userF);
+                    
+                    // Delete the friend request after responding
+                    _context.FriendRequests.Remove(request);
+                    _context.SaveChanges();
+
+                    return ("Demande accepté");
+                }
             }
+            
+            // Delete the friend request after responding
+            _context.FriendRequests.Remove(request);
             await _context.SaveChangesAsync();
-        }    }
+            return("Demande refusé");
+    }
+    
+    public async Task<IEnumerable<FriendRequest>> GetSentFriendRequestsAsync(string userId)
+    {
+        return await _context.FriendRequests
+            .Where(fr => fr.RequesterId == userId)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<FriendRequest>> GetReceivedFriendRequestsAsync(string userId)
+    {
+        var fr = await _context.FriendRequests
+            .Where(fr => fr.AddresseeId == userId)
+            .ToListAsync();
+
+        return fr;
+    }
+
+    public async Task<IEnumerable<Friend>> GetUsersFriend(string uid)
+    {
+        var user = await _context.Users.Include(user => user.Friends).FirstOrDefaultAsync(u => u.Uid == uid);
+        return user.Friends;
+    }
 }

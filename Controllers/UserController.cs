@@ -17,40 +17,40 @@ public class UsersController : ControllerBase
         _hubContext = hubContext;
         _userRepository = userRepository;
     }
-
-    [HttpPost("{userId}/addFriend/{friendId}")]
-    public async Task<IActionResult> AddFriend(string userId, string friendId)
-    {
-        if (userId == friendId)
-        {
-            return BadRequest("Users cannot add themselves as a friend.");
-        }
-
-        var user = await _userRepository.GetUserByIdAsync(userId);
-        var friend = await _userRepository.GetUserByIdAsync(friendId);
-
-        if (user == null || friend == null)
-        {
-            return NotFound("User or friend not found.");
-        }
-
-        await _userRepository.AddFriendAsync(userId, friendId);
-
-        return Ok($"Friend added successfully.");
-    }
     
     [HttpPost("{requesterId}/sendFriendRequest/{addresseeId}")]
     public async Task<IActionResult> SendFriendRequest(string requesterId, string addresseeId)
     {
         await _userRepository.SendFriendRequestAsync(requesterId, addresseeId);
         await _hubContext.Clients.User(addresseeId).SendAsync("ReceiveFriendRequest", "Vous avez une demande d'ami");
-        return Ok();
+        return Ok("Demande envoyer");
     }
 
     [HttpPost("respondToFriendRequest/{requestId}")]
     public async Task<IActionResult> RespondToFriendRequest(string requestId, bool isAccepted)
     {
-        await _userRepository.RespondToFriendRequestAsync(requestId, isAccepted);
-        return Ok();
+        var response = await _userRepository.RespondToFriendRequestAsync(requestId, isAccepted);
+        return Ok(response);
+    }
+
+    [HttpGet("sentFriendRequest")]
+    public async Task<IActionResult> SentFriendRequest(string uid)
+    {
+        var request = await _userRepository.GetSentFriendRequestsAsync(uid);
+        return Ok(request);
+    }
+    
+    [HttpGet("ReceivedFriendRequest")]
+    public async Task<IActionResult> ReceivedFriendRequest(string uid)
+    {
+        var request = await _userRepository.GetReceivedFriendRequestsAsync(uid);
+        return Ok(request);
+    }
+
+    [HttpGet("Friends")]
+    public async Task<IActionResult> GetFriends(string uid)
+    {
+        var friends = await _userRepository.GetUsersFriend(uid);
+        return Ok(friends);
     }
 }

@@ -11,7 +11,7 @@ public class MessagingHub : Microsoft.AspNetCore.SignalR.Hub
         var senderId = Context.ConnectionId;
         var userMessage = new UserMessage
         {
-            Sender = senderId,
+            SenderId = senderId,
             Content = content,
             SentTime = DateTime.UtcNow
         };

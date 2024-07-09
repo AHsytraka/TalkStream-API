@@ -1,3 +1,4 @@
+using System.Collections;
 using TalkStream_API.Entities;
 
 namespace TalkStream_API.Repositories.UserRepository;
@@ -18,12 +19,13 @@ public interface IUserRepository
     public IEnumerable<User> GetUsersByUsername(string username);
 
     public IEnumerable<User> GetUsersWithUsername(string username);
+    
+    public Task<bool> SendFriendRequestAsync(string requesterId, string addresseeId);
 
-    public Task AddFriendAsync(string userId, string friendId);
+    public Task<string> RespondToFriendRequestAsync(string requestId, bool isAccepted);
 
-    public Task SendFriendRequestAsync(string requesterId, string addresseeId);
+    public Task<IEnumerable<FriendRequest>> GetSentFriendRequestsAsync(string userId);
+    public Task<IEnumerable<FriendRequest>> GetReceivedFriendRequestsAsync(string userId);
 
-    public Task RespondToFriendRequestAsync(string requestId, bool isAccepted);
-
-
+    public Task<IEnumerable<Friend>> GetUsersFriend(string uid);
 }

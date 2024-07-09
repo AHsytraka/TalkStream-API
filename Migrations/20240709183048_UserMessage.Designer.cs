@@ -12,8 +12,8 @@ using TalkStream_API.Database;
 namespace TalkStream_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240708193801_FriendRequest")]
-    partial class FriendRequest
+    [Migration("20240709183048_UserMessage")]
+    partial class UserMessage
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,29 @@ namespace TalkStream_API.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("TalkStream_API.Entities.Friend", b =>
+                {
+                    b.Property<string>("Uid")
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("UserUid")
+                        .HasColumnType("varchar(36)");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.HasKey("Uid");
+
+                    b.HasIndex("UserUid");
+
+                    b.ToTable("Friend");
+                });
+
             modelBuilder.Entity("TalkStream_API.Entities.FriendRequest", b =>
                 {
                     b.Property<string>("Id")
@@ -34,12 +57,20 @@ namespace TalkStream_API.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(36)");
 
+                    b.Property<string>("AddresseeName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<bool?>("IsAccepted")
                         .HasColumnType("tinyint(1)");
 
                     b.Property<string>("RequesterId")
                         .IsRequired()
                         .HasColumnType("varchar(36)");
+
+                    b.Property<string>("RequesterName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -69,9 +100,6 @@ namespace TalkStream_API.Migrations
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
-                    b.Property<string>("UserUid")
-                        .HasColumnType("varchar(36)");
-
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(50)
@@ -79,9 +107,42 @@ namespace TalkStream_API.Migrations
 
                     b.HasKey("Uid");
 
-                    b.HasIndex("UserUid");
-
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("TalkStream_API.Entities.UserMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("RecipientId")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<DateTime>("SentTime")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserMessages");
+                });
+
+            modelBuilder.Entity("TalkStream_API.Entities.Friend", b =>
+                {
+                    b.HasOne("TalkStream_API.Entities.User", null)
+                        .WithMany("Friends")
+                        .HasForeignKey("UserUid");
                 });
 
             modelBuilder.Entity("TalkStream_API.Entities.FriendRequest", b =>
@@ -101,13 +162,6 @@ namespace TalkStream_API.Migrations
                     b.Navigation("Addressee");
 
                     b.Navigation("Requester");
-                });
-
-            modelBuilder.Entity("TalkStream_API.Entities.User", b =>
-                {
-                    b.HasOne("TalkStream_API.Entities.User", null)
-                        .WithMany("Friends")
-                        .HasForeignKey("UserUid");
                 });
 
             modelBuilder.Entity("TalkStream_API.Entities.User", b =>
