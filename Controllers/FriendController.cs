@@ -26,7 +26,7 @@ public class FriendController : ControllerBase
 
         if (friends == null || !friends.Any())
         {
-            return NotFound("No friends found.");
+            return Ok(new List<Friendship>());
         }
 
         return Ok(friends);
@@ -39,7 +39,8 @@ public class FriendController : ControllerBase
 
         if (receivedRequests == null || !receivedRequests.Any())
         {
-            return NotFound("No friend requests found.");
+            // Return an empty list with a 200 OK status
+            return Ok(new List<Friendship>());
         }
 
         return Ok(receivedRequests);

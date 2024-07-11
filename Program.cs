@@ -8,6 +8,7 @@ using TalkStream_API.Database;
 using TalkStream_API.Hub;
 using TalkStream_API.Middleware;
 using TalkStream_API.Repositories.FriendRequestRepository;
+using TalkStream_API.Repositories.MessageRepository;
 using TalkStream_API.Repositories.UserRepository;
 using TalkStream_API.Service;
 
@@ -17,6 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
 //Exception Handler
 // builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -28,10 +30,9 @@ builder.Services.AddCors(opt =>
     opt.AddPolicy("RNapp", builder =>
     {
         builder
-            .WithOrigins(
-                "http://localhost:8081")
             .AllowAnyHeader()
             .AllowAnyMethod()
+            .SetIsOriginAllowed(origin => true)
             .AllowCredentials();
     });
 });
