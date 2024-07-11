@@ -7,6 +7,7 @@ using Microsoft.OpenApi.Models;
 using TalkStream_API.Database;
 using TalkStream_API.Hub;
 using TalkStream_API.Middleware;
+using TalkStream_API.Repositories.FriendRequestRepository;
 using TalkStream_API.Repositories.UserRepository;
 using TalkStream_API.Service;
 
@@ -15,10 +16,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
 
 //Exception Handler
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
+// builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+// builder.Services.AddProblemDetails();
 
 //Global Configuration
 builder.Services.AddCors(opt =>
@@ -101,7 +103,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseExceptionHandler();
+// app.UseExceptionHandler();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();

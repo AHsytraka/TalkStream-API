@@ -15,7 +15,10 @@ public class User
     [MaxLength(120)]
     public required string Password { get; set; }
     public Role Role { get; set; }
-    public virtual ICollection<Friend> Friends { get; set; } = new List<Friend>();
-    public virtual ICollection<FriendRequest> SentFriendRequests { get; set; } = new List<FriendRequest>();
-    public virtual ICollection<FriendRequest> ReceivedFriendRequests { get; set; } = new List<FriendRequest>();
+    // Navigation properties
+    public virtual ICollection<Friendship> Friends { get; set; }
+    public virtual ICollection<Friendship> FriendOf { get; set; }
+    public virtual ICollection<Publication> Publications { get; set; }
+    public virtual ICollection<Comment> Comments { get; set; }
+    public virtual ICollection<Reaction> Reactions { get; set; }
 }

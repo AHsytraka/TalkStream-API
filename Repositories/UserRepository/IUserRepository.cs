@@ -19,13 +19,4 @@ public interface IUserRepository
     public IEnumerable<User> GetUsersByUsername(string username);
 
     public IEnumerable<User> GetUsersWithUsername(string username);
-    
-    public Task<bool> SendFriendRequestAsync(string requesterId, string addresseeId);
-
-    public Task<string> RespondToFriendRequestAsync(string requestId, bool isAccepted);
-
-    public Task<IEnumerable<FriendRequest>> GetSentFriendRequestsAsync(string userId);
-    public Task<IEnumerable<FriendRequest>> GetReceivedFriendRequestsAsync(string userId);
-
-    public Task<IEnumerable<Friend>> GetUsersFriend(string uid);
 }
