@@ -59,11 +59,6 @@ public class AppDbContext : DbContext
             .HasKey(c => c.Id);
 
         modelBuilder.Entity<Comment>()
-            .HasOne(c => c.Publication)
-            .WithMany(p => p.Comments)
-            .HasForeignKey(c => c.PublicationId);
-
-        modelBuilder.Entity<Comment>()
             .HasOne(c => c.User)
             .WithMany(u => u.Comments)
             .HasForeignKey(c => c.UserId);
@@ -71,11 +66,6 @@ public class AppDbContext : DbContext
         // Reaction entity
         modelBuilder.Entity<Reaction>()
             .HasKey(r => r.Id);
-
-        modelBuilder.Entity<Reaction>()
-            .HasOne(r => r.Publication)
-            .WithMany(p => p.Reactions)
-            .HasForeignKey(r => r.PublicationId);
 
         modelBuilder.Entity<Reaction>()
             .HasOne(r => r.User)

@@ -15,5 +15,5 @@ public class Reaction
     public int PublicationId { get; set; }
     public virtual Publication Publication { get; set; }
     
-    public ReactionType Type { get; set; }
+    public string Type { get; set; }
 }

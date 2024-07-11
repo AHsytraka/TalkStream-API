@@ -8,7 +8,9 @@ using TalkStream_API.Database;
 using TalkStream_API.Hub;
 using TalkStream_API.Middleware;
 using TalkStream_API.Repositories.FriendRequestRepository;
+using TalkStream_API.Repositories.GroupRepository;
 using TalkStream_API.Repositories.MessageRepository;
+using TalkStream_API.Repositories.PublicationRepository;
 using TalkStream_API.Repositories.UserRepository;
 using TalkStream_API.Service;
 
@@ -19,6 +21,8 @@ builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IFriendshipRepository, FriendshipRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddScoped<IGroupRepository, GroupRepository>();
+builder.Services.AddScoped<IPublicationRepository, PublicationRepository>();
 
 //Exception Handler
 // builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
@@ -37,7 +41,10 @@ builder.Services.AddCors(opt =>
     });
 });
 builder.Services.AddSignalR();
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+});;
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen( c=>
     {
@@ -110,6 +117,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<MessagingHub>("/hub");
+app.MapHub<MessageGroupHub>("/groupHub");
 app.MapHub<NotificationHub>("/notificationHub");
 app.UseCors("RNapp");
 app.Run(); 

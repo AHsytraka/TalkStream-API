@@ -14,7 +14,7 @@ public class Publication
     [Required]
     public string Content { get; set; }
     
-    public DateTime Timestamp { get; set; }
+    public DateTime Timestamp { get; set; } = DateTime.Now;
     
     // Navigation properties
     public virtual ICollection<Comment> Comments { get; set; }
