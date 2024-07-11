@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TalkStream_API.Database;
 
@@ -11,9 +12,11 @@ using TalkStream_API.Database;
 namespace TalkStream_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240711143223_MessageGroup")]
+    partial class MessageGroup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,6 +24,21 @@ namespace TalkStream_API.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
+
+            modelBuilder.Entity("GroupUser", b =>
+                {
+                    b.Property<int>("GroupsId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UsersUid")
+                        .HasColumnType("varchar(36)");
+
+                    b.HasKey("GroupsId", "UsersUid");
+
+                    b.HasIndex("UsersUid");
+
+                    b.ToTable("GroupUser");
+                });
 
             modelBuilder.Entity("TalkStream_API.Entities.Comment", b =>
                 {
@@ -89,18 +107,11 @@ namespace TalkStream_API.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("CreatorId")
-                        .IsRequired()
-                        .HasColumnType("varchar(36)");
-
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatorId");
 
                     b.ToTable("Groups");
                 });
@@ -117,7 +128,7 @@ namespace TalkStream_API.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<int>("GroupId")
+                    b.Property<int?>("GroupId")
                         .HasColumnType("int");
 
                     b.Property<string>("SenderId")
@@ -250,19 +261,19 @@ namespace TalkStream_API.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("TalkStream_API.Entities.UserGroup", b =>
+            modelBuilder.Entity("GroupUser", b =>
                 {
-                    b.Property<string>("UserId")
-                        .HasColumnType("varchar(36)");
+                    b.HasOne("TalkStream_API.Entities.Group", null)
+                        .WithMany()
+                        .HasForeignKey("GroupsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Property<int>("GroupId")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId", "GroupId");
-
-                    b.HasIndex("GroupId");
-
-                    b.ToTable("UserGroups");
+                    b.HasOne("TalkStream_API.Entities.User", null)
+                        .WithMany()
+                        .HasForeignKey("UsersUid")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("TalkStream_API.Entities.Comment", b =>
@@ -303,24 +314,11 @@ namespace TalkStream_API.Migrations
                     b.Navigation("Requester");
                 });
 
-            modelBuilder.Entity("TalkStream_API.Entities.Group", b =>
-                {
-                    b.HasOne("TalkStream_API.Entities.User", "Creator")
-                        .WithMany("CreatedGroups")
-                        .HasForeignKey("CreatorId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Creator");
-                });
-
             modelBuilder.Entity("TalkStream_API.Entities.GroupMessage", b =>
                 {
                     b.HasOne("TalkStream_API.Entities.Group", "Group")
                         .WithMany("GroupMessages")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GroupId");
 
                     b.HasOne("TalkStream_API.Entities.User", "Sender")
                         .WithMany("GroupMessages")
@@ -382,30 +380,9 @@ namespace TalkStream_API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TalkStream_API.Entities.UserGroup", b =>
-                {
-                    b.HasOne("TalkStream_API.Entities.Group", "Group")
-                        .WithMany("UserGroups")
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TalkStream_API.Entities.User", "User")
-                        .WithMany("UserGroups")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Group");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("TalkStream_API.Entities.Group", b =>
                 {
                     b.Navigation("GroupMessages");
-
-                    b.Navigation("UserGroups");
                 });
 
             modelBuilder.Entity("TalkStream_API.Entities.Publication", b =>
@@ -419,8 +396,6 @@ namespace TalkStream_API.Migrations
                 {
                     b.Navigation("Comments");
 
-                    b.Navigation("CreatedGroups");
-
                     b.Navigation("FriendOf");
 
                     b.Navigation("Friends");
@@ -430,8 +405,6 @@ namespace TalkStream_API.Migrations
                     b.Navigation("Publications");
 
                     b.Navigation("Reactions");
-
-                    b.Navigation("UserGroups");
                 });
 #pragma warning restore 612, 618
         }

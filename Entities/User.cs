@@ -21,4 +21,7 @@ public class User
     public virtual ICollection<Publication> Publications { get; set; }
     public virtual ICollection<Comment> Comments { get; set; }
     public virtual ICollection<Reaction> Reactions { get; set; }
+    public virtual ICollection<UserGroup> UserGroups { get; set; }
+    public virtual ICollection<Group> CreatedGroups { get; set; }
+    public virtual ICollection<GroupMessage> GroupMessages { get; set; } 
 }
