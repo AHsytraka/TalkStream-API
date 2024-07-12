@@ -1,7 +1,8 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace TalkStream_API.Entities;
+namespace TalkStream_API.Entities
+{
     public class Message
     {
         [Key]
@@ -9,21 +10,19 @@ namespace TalkStream_API.Entities;
         
         [Required]
         public string SenderId { get; set; }
+        
         public User Sender { get; set; }
         
         [Required]
-        public string SenderUsername { get; set; }
-        
-        [Required]
         public string ReceiverId { get; set; }
+        
         public User Receiver { get; set; }
         
         [Required]
-        public string ReceiverUsername { get; set; }
-        
-        [Required]
+        [MaxLength(1000)]
         public string Content { get; set; }
         
         [Required]
         public DateTime Timestamp { get; set; }
     }
+}

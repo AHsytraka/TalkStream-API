@@ -116,7 +116,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.MapHub<MessagingHub>("/messagingHub");
+app.MapHub<PrivateChatHub>("/messagingHub");
 app.MapHub<GroupHub>("/groupHub");
 app.MapHub<NotificationHub>("/notificationHub");
 app.UseCors("RNapp");
