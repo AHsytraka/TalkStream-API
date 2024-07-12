@@ -12,8 +12,14 @@ namespace TalkStream_API.Entities;
         public User Sender { get; set; }
         
         [Required]
+        public string SenderUsername { get; set; }
+        
+        [Required]
         public string ReceiverId { get; set; }
         public User Receiver { get; set; }
+        
+        [Required]
+        public string ReceiverUsername { get; set; }
         
         [Required]
         public string Content { get; set; }
