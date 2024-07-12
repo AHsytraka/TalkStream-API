@@ -15,6 +15,9 @@ public class User
     [MaxLength(120)]
     public required string Password { get; set; }
     public Role Role { get; set; }
+    
+    public string? ProfilePictureUrl { get; set; }
+
     // Navigation properties
     public virtual ICollection<Friendship> Friends { get; set; }
     public virtual ICollection<Friendship> FriendOf { get; set; }

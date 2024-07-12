@@ -1,8 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
 using TalkStream_API.DTO;
 using TalkStream_API.Entities;
+using TalkStream_API.Hub;
+using TalkStream_API.Repositories.FriendRequestRepository;
 
 [ApiController]
 [Route("[controller]")]
@@ -10,10 +13,14 @@ using TalkStream_API.Entities;
 public class PublicationsController : ControllerBase
 {
     private readonly IPublicationRepository _repository;
+    private readonly IHubContext<NotificationHub> _hubContext;
+    private readonly IFriendshipRepository _friendshipRepository;
 
-    public PublicationsController(IPublicationRepository repository)
+    public PublicationsController(IPublicationRepository repository, IHubContext<NotificationHub> hubContext, IFriendshipRepository friendshipRepository)
     {
         _repository = repository;
+        _hubContext = hubContext;
+        _friendshipRepository = friendshipRepository;
     }
 
 
@@ -67,6 +74,14 @@ public class PublicationsController : ControllerBase
             Content = publicationDto.Content
         };
         await _repository.AddPublicationAsync(publication);
+
+        // Notify friends
+        var friends = await _friendshipRepository.GetAllFriendsAsync(publicationDto.UserId);
+        foreach (var friend in friends)
+        {
+            await _hubContext.Clients.User(friend.Uid).SendAsync("ReceiveNotification", $"Your friend {publicationDto.UserId} has created a new post.");
+        }
+
         return Ok(publication);
     }
 
@@ -100,6 +115,13 @@ public class PublicationsController : ControllerBase
             Timestamp = DateTime.Now
         };
         await _repository.AddCommentAsync(comment);
+
+        var publication = await _repository.GetPublicationByIdAsync(id);
+        if (publication != null)
+        {
+            await _hubContext.Clients.User(publication.UserId).SendAsync("ReceiveNotification", $"Your post has a new comment from {commentDto.UserId}.");
+        }
+
         return Ok(comment);
     }
 
@@ -113,6 +135,13 @@ public class PublicationsController : ControllerBase
             Type = reactionDto.Type
         };
         await _repository.AddReactionAsync(reaction);
+
+        var publication = await _repository.GetPublicationByIdAsync(id);
+        if (publication != null)
+        {
+            await _hubContext.Clients.User(publication.UserId).SendAsync("ReceiveNotification", $"Your post has a new reaction from {reactionDto.UserId}.");
+        }
+
         return Ok(reaction);
     }
 }

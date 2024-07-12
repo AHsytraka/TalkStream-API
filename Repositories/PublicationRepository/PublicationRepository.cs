@@ -19,6 +19,7 @@ public class PublicationRepository : IPublicationRepository
             .Include(p => p.User)
             .Include(p => p.Comments)
             .Include(p => p.Reactions)
+            .OrderByDescending(p => p.Timestamp) // Order by Timestamp in descending order
             .ToListAsync();
     }
 
